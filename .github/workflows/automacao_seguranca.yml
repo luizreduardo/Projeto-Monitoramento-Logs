@@ -1,0 +1,39 @@
+name: Monitoramento de Logs de Segurança
+
+# Gatilhos: Quando essa automação deve rodar?
+on:
+  # 1. Permite rodar manualmente clicando num botão (bom para testes)
+  workflow_dispatch:
+  # 2. Roda automaticamente todo dia à meia-noite (Schedule) [Requisito do PDF]
+  schedule:
+    - cron: '0 0 * * *'
+
+jobs:
+  executar_auditoria:
+    runs-on: ubuntu-latest  # Usa uma máquina Linux virtual
+
+    steps:
+      - name: Baixar o código do repositório
+        uses: actions/checkout@v3
+
+      - name: Instalar Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Executar Script de Monitoramento
+        # Roda o seu script Python
+        run: python monitoramento_logs.py
+
+      - name: Mostrar Logs no Console (Evidência)
+        # Exibe o conteúdo do CSV na tela preta do log para você tirar print
+        run: |
+          echo "=== EXIBINDO CONTEÚDO DO RELATÓRIO CSV ==="
+          cat relatorio_logs.csv
+
+      - name: Salvar CSV como Artefato
+        # Permite baixar o arquivo CSV gerado pelo GitHub
+        uses: actions/upload-artifact@v3
+        with:
+          name: relatorio-de-logs
+          path: relatorio_logs.csv
